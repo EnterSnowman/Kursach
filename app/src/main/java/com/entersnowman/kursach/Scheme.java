@@ -51,7 +51,7 @@ public class Scheme extends View{
 
     public void addElement(Element element){
         elements.add(element);
-
+        invalidate();
     }
 
     @Override
