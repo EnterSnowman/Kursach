@@ -2,6 +2,8 @@ package com.entersnowman.kursach;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     Scheme scheme;
@@ -32,8 +35,16 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                if (scheme.deleteMode){
+                    scheme.deleteMode = false;
+                    view.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                    Toast.makeText(MainActivity.this,"Режим удаления выключен",Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    scheme.deleteMode = true;
+                    view.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+                    Toast.makeText(MainActivity.this,"Режим удаления включен",Toast.LENGTH_SHORT).show();
+                }
             }
         });
         scheme = (Scheme) findViewById(R.id.scheme);
@@ -68,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         }).setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                
+
             }
         });
 

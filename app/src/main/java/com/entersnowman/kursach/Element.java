@@ -18,7 +18,7 @@ public class Element extends View {
     final static float SMALL_H = 30;
     final static float LENGTH_IN = 30;
     final static float WIDTH = 200;
-    Paint paint;
+    Paint paint,backgroundPaint;
     float w,h,x,y;
     int numberOfIns;
     String type;
@@ -40,6 +40,9 @@ public class Element extends View {
         paint.setColor(Color.BLACK);
         paint.setStyle(Paint.Style.STROKE);
         paint.setTextSize(35);
+        backgroundPaint = new Paint();
+        backgroundPaint.setStyle(Paint.Style.FILL);
+        backgroundPaint.setColor(Color.WHITE);
         w = WIDTH;
         h = (numberOfIns+1)*SMALL_H;
         x = 50;
@@ -51,6 +54,7 @@ public class Element extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         System.out.println("OnDraw sq");
+        canvas.drawRect(x,y,x+w,y+h,backgroundPaint);
         canvas.drawRect(x,y,x+w,y+h,paint);
         for (int i = 0;i<numberOfIns;i++){
             canvas.drawLine(x-LENGTH_IN,y+SMALL_H*(i+1),x,y+SMALL_H*(i+1),paint);
@@ -58,7 +62,6 @@ public class Element extends View {
         canvas.drawLine(x+w,y+h/2,x+w+LENGTH_IN,y+h/2,paint);
         canvas.drawText(type,x+w/2,y+h/2,paint);
         System.out.println("w = "+getWidth()+", h = "+getHeight());
-        //measure((int) w,(int) h);
     }
 
 

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class Scheme extends View{
     Paint paint,testPaint;
     ArrayList<Element> elements;
-    boolean finded;
+    boolean finded,deleteMode;
     int findedElement;
     float dragX;
     float dragY;
@@ -47,6 +47,7 @@ public class Scheme extends View{
         testPaint = new Paint();
         testPaint.setColor(Color.GREEN);
         finded = false;
+        deleteMode = false;
     }
 
     public void addElement(Element element){
@@ -62,6 +63,7 @@ public class Scheme extends View{
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
                 System.out.println("evX = "+evX+" , evY = "+evY);
+                if (!deleteMode){
                 for (int i = 0; i<elements.size()&&!finded;i++){
                     if (elements.get(i).isClickOnBorders(evX,evY)){
                         elements.get(i).isMove = false;
@@ -72,9 +74,20 @@ public class Scheme extends View{
                         System.out.println("Drags "+dragX+" "+dragY);
                     }
                 }
+                }
+                else{
+                    for (int i = elements.size()-1; i>=0&&!finded;i--){
+                        if (elements.get(i).isClickOnBorders(evX,evY)){
+                            elements.remove(i);
+                            finded = true;
+                        }
+                    }
+                    invalidate();
+                    finded = false;
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (finded){
+                if (finded&&!deleteMode){
                     System.out.println("Drags "+dragX+" "+dragY);
                     elements.get(findedElement).x = evX - dragX;
                     elements.get(findedElement).y = evY - dragY;
@@ -82,6 +95,7 @@ public class Scheme extends View{
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                if (!deleteMode)
                 finded = false;
                 break;
         }
