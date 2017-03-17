@@ -7,4 +7,12 @@
         android:orderInCategory="100"
         android:title="Добавить элемент"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/clear_scheme"
+        android:orderInCategory="101"
+        android:title="Очистить схему"
+        app:showAsAction="always" />
+
+
 </menu>

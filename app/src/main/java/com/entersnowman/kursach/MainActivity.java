@@ -107,6 +107,13 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        if (id == R.id.clear_scheme) {
+            scheme.elements.clear();
+            scheme.links.clear();
+            scheme.invalidate();
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 }

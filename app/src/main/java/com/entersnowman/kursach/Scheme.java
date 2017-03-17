@@ -17,8 +17,9 @@ import java.util.ArrayList;
 public class Scheme extends View{
     Paint paint,testPaint;
     ArrayList<Element> elements;
-    boolean finded,deleteMode;
-    int findedElement;
+    ArrayList<Link> links;
+    boolean finded,deleteMode, isInPinFinded,isOutPinFinded, canSkip;
+    int findedElement,inPin,outPin, inPinElement;
     float dragX;
     float dragY;
     public Scheme(Context context) {
@@ -36,11 +37,13 @@ public class Scheme extends View{
         super.onDraw(canvas);
         for (Element e: elements)
             e.draw(canvas);
-        System.out.println("Scheme "+getHeight()+" "+getWidth());
+        for (Link l: links)
+            l.draw(canvas);
     }
 
     public void init(){
         elements = new ArrayList<Element>();
+        links = new ArrayList<Link>();
         paint = new Paint();
         paint.setStrokeWidth(2);
         paint.setColor(Color.BLACK);
@@ -48,6 +51,9 @@ public class Scheme extends View{
         testPaint.setColor(Color.GREEN);
         finded = false;
         deleteMode = false;
+        isInPinFinded = false;
+        isOutPinFinded = false;
+        canSkip = true;
     }
 
     public void addElement(Element element){
@@ -57,22 +63,63 @@ public class Scheme extends View{
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        System.out.println("Finded in "+isInPinFinded+" out "+isOutPinFinded);
         //return super.onTouchEvent(event);
         float evX = event.getX();
         float evY = event.getY();
+        canSkip = true;
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
-                System.out.println("evX = "+evX+" , evY = "+evY);
                 if (!deleteMode){
-                for (int i = 0; i<elements.size()&&!finded;i++){
+                    //click on input pin
+                    if (!isInPinFinded){
+                for (int i = 0; i<elements.size()&&!isInPinFinded;i++){
+                    if (elements.get(i).getPin(evX,evY)!=-1){
+                        if (elements.get(i).inputPins.get(elements.get(i).getPin(evX,evY)).getLink()==null){
+                        isInPinFinded = true;
+                        inPinElement = i;
+                        inPin = elements.get(i).getPin(evX,evY);
+                        elements.get(i).inputPins.get(inPin).paint.setColor(Color.RED);
+                        System.out.println("In find. El = "+findedElement+" pin = "+inPin);
+                        invalidate();
+                        canSkip = false;
+                        }
+                    }
+                }
+                    if (isOutPinFinded&&isInPinFinded){
+                        canSkip = true;
+                        addLink();
+                    }
+                    }
+                //click on output pin
+                    if (!isOutPinFinded){
+                    for (int i = 0; i<elements.size()&&!isOutPinFinded;i++){
+                        if (elements.get(i).isClickOnOutPin(evX,evY)){
+                            isOutPinFinded = true;
+                            outPin = i;
+                            elements.get(i).outputPin.paint.setColor(Color.RED);
+                            System.out.println("Out find. El = "+outPin);
+                            invalidate();
+                            canSkip = false;
+                        }
+                    }
+                        if (isInPinFinded&&isOutPinFinded){
+                            canSkip = true;
+                            addLink();
+                        }
+                    }
+                    //click on element
+                for (int i = 0; i<elements.size()&&!finded&&!isInPinFinded&&!isOutPinFinded; i++){
                     if (elements.get(i).isClickOnBorders(evX,evY)){
                         elements.get(i).isMove = false;
                         finded = true;
                         findedElement = i;
                         dragX = evX - elements.get(findedElement).x;
                         dragY = evY - elements.get(findedElement).y;
-                        System.out.println("Drags "+dragX+" "+dragY);
                     }
+                }
+                if (canSkip){
+                    skipPins();
                 }
                 }
                 else{
@@ -88,9 +135,7 @@ public class Scheme extends View{
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (finded&&!deleteMode){
-                    System.out.println("Drags "+dragX+" "+dragY);
-                    elements.get(findedElement).x = evX - dragX;
-                    elements.get(findedElement).y = evY - dragY;
+                    elements.get(findedElement).setNewXY(evX - dragX, evY - dragY);
                     invalidate();
                 }
                 break;
@@ -101,5 +146,30 @@ public class Scheme extends View{
         }
 
         return true;
+    }
+
+    public void addLink(){
+        System.out.println("Link added");
+        isInPinFinded = false;
+        isOutPinFinded = false;
+        Link link =  new Link(getContext());
+        link.setInputPin(elements.get(inPinElement).inputPins.get(inPin));
+        link.setOutputPin(elements.get(outPin).getOutputPin());
+        links.add(link);
+        elements.get(inPinElement).inputPins.get(inPin).paint.setColor(Color.BLACK);
+        elements.get(outPin).getOutputPin().paint.setColor(Color.BLACK);
+        elements.get(inPinElement).inputPins.get(inPin).setLink(link);
+        elements.get(outPin).getOutputPin().getLinks().add(link);
+        invalidate();
+    }
+
+    public void skipPins(){
+        if (isInPinFinded)
+        elements.get(inPinElement).inputPins.get(inPin).paint.setColor(Color.BLACK);
+        if (isOutPinFinded)
+        elements.get(outPin).getOutputPin().paint.setColor(Color.BLACK);
+        isInPinFinded = false;
+        isOutPinFinded = false;
+        invalidate();
     }
 }
