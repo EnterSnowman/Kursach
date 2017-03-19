@@ -14,9 +14,11 @@ import android.view.View;
 
 public class InputPin extends View {
     float y,x1,x2;
-    Paint paint;
+    Paint paint, textPaint;
     Link link;
-    public InputPin(Context context,float y,float x1, float x2) {
+    String term;
+
+    public InputPin(Context context, float y, float x1, float x2) {
         super(context);
         this.y = y;
         this.x1 = x1;
@@ -25,6 +27,10 @@ public class InputPin extends View {
         paint.setStrokeWidth(4);
         paint.setColor(Color.BLACK);
         paint.setStyle(Paint.Style.STROKE);
+        textPaint = new Paint();
+        textPaint.setColor(Color.BLACK);
+        textPaint.setTextSize(35);
+        textPaint.setStrokeWidth(3);
     }
 
     public InputPin(Context context, @Nullable AttributeSet attrs) {
@@ -35,6 +41,8 @@ public class InputPin extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawLine(x1,y,x2,y,paint);
+        if (term!=null)
+        canvas.drawText(term,x1,y-2,textPaint);
     }
 
 
@@ -45,5 +53,15 @@ public class InputPin extends View {
     public void setLink(Link link) {
         this.link = link;
     }
+
+
+    public String getTerm() {
+        return term;
+    }
+
+    public void setTerm(String term) {
+        this.term = term;
+    }
+
 
 }

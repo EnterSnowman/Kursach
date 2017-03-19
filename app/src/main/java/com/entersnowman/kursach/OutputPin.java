@@ -16,8 +16,17 @@ import java.util.ArrayList;
 
 public class OutputPin extends View {
     float y,x1,x2;
-    Paint paint;
+    Paint paint, textPaint;
     ArrayList<Link> links;
+    String term;
+
+    public String getTerm() {
+        return term;
+    }
+
+    public void setTerm(String term) {
+        this.term = term;
+    }
 
     public ArrayList<Link> getLinks() {
         return links;
@@ -37,6 +46,11 @@ public class OutputPin extends View {
         paint.setStrokeWidth(4);
         paint.setColor(Color.BLACK);
         paint.setStyle(Paint.Style.STROKE);
+        textPaint = new Paint();
+        textPaint.setTextAlign(Paint.Align.RIGHT);
+        textPaint.setColor(Color.BLACK);
+        textPaint.setTextSize(35);
+        textPaint.setStrokeWidth(3);
 
     }
 
@@ -48,5 +62,7 @@ public class OutputPin extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawLine(x1,y,x2,y,paint);
+        if (term!=null)
+        canvas.drawText(term,x2,y-2,textPaint);
     }
 }

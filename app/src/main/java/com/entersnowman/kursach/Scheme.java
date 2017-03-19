@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 
 import java.util.ArrayList;
 
@@ -18,10 +19,13 @@ public class Scheme extends View{
     Paint paint,testPaint;
     ArrayList<Element> elements;
     ArrayList<Link> links;
-    boolean finded,deleteMode, isInPinFinded,isOutPinFinded, canSkip;
+    ArrayList<String> signals;
+    ArrayList<String> alphabet;
+    boolean finded,deleteMode, inputMode, isInPinFinded,isOutPinFinded, canSkip;
     int findedElement,inPin,outPin, inPinElement;
     float dragX;
     float dragY;
+    EditText name_et;
     public Scheme(Context context) {
         super(context);
         init();
@@ -51,9 +55,14 @@ public class Scheme extends View{
         testPaint.setColor(Color.GREEN);
         finded = false;
         deleteMode = false;
+        inputMode=  false;
         isInPinFinded = false;
         isOutPinFinded = false;
         canSkip = true;
+        signals = new ArrayList<String>();
+        alphabet = new ArrayList<String>();
+        for (int i =0 ; i < "abcdefghijklmnopqrstuvwxyz".length();i++)
+            alphabet.add("abcdefghijklmnopqrstuvwxyz".substring(i,i+1));
     }
 
     public void addElement(Element element){
@@ -71,58 +80,76 @@ public class Scheme extends View{
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
                 if (!deleteMode){
-                    //click on input pin
-                    if (!isInPinFinded){
-                for (int i = 0; i<elements.size()&&!isInPinFinded;i++){
-                    if (elements.get(i).getPin(evX,evY)!=-1){
-                        if (elements.get(i).inputPins.get(elements.get(i).getPin(evX,evY)).getLink()==null){
-                        isInPinFinded = true;
-                        inPinElement = i;
-                        inPin = elements.get(i).getPin(evX,evY);
-                        elements.get(i).inputPins.get(inPin).paint.setColor(Color.RED);
-                        System.out.println("In find. El = "+findedElement+" pin = "+inPin);
-                        invalidate();
-                        canSkip = false;
+                    if (inputMode){//добавление сигналов
+                        boolean isUnnamedPinFinded = false;
+                        for (int i = 0; i < elements.size() && !isUnnamedPinFinded; i++) {
+                            if (elements.get(i).getPin(evX, evY) != -1) {
+                                if (elements.get(i).inputPins.get(elements.get(i).getPin(evX, evY)).getLink() == null) {
+                                    isUnnamedPinFinded = true;
+                                    elements.get(i).inputPins.get(elements.get(i).getPin(evX, evY)).setTerm(name_et.getText().toString());
+                                    if (!signals.contains(name_et.getText().toString()))
+                                        signals.add(name_et.getText().toString());
+                                    invalidate();
+                                }
+                            }
                         }
                     }
-                }
-                    if (isOutPinFinded&&isInPinFinded){
-                        canSkip = true;
-                        addLink();
-                    }
-                    }
-                //click on output pin
-                    if (!isOutPinFinded){
-                    for (int i = 0; i<elements.size()&&!isOutPinFinded;i++){
-                        if (elements.get(i).isClickOnOutPin(evX,evY)){
-                            isOutPinFinded = true;
-                            outPin = i;
-                            elements.get(i).outputPin.paint.setColor(Color.RED);
-                            System.out.println("Out find. El = "+outPin);
-                            invalidate();
-                            canSkip = false;
+                    else {
+                        //click on input pin
+                        if (!isInPinFinded) {
+                            for (int i = 0; i < elements.size() && !isInPinFinded; i++) {
+                                if (elements.get(i).getPin(evX, evY) != -1) {
+                                    if (elements.get(i).inputPins.get(elements.get(i).getPin(evX, evY)).getLink() == null && elements.get(i).inputPins.get(elements.get(i).getPin(evX, evY)).getTerm()==null) {
+                                        isInPinFinded = true;
+                                        inPinElement = i;
+                                        inPin = elements.get(i).getPin(evX, evY);
+                                        elements.get(i).inputPins.get(inPin).paint.setColor(Color.RED);
+                                        System.out.println("In find. El = " + findedElement + " pin = " + inPin);
+                                        invalidate();
+                                        canSkip = false;
+                                    }
+                                }
+                            }
+                            if (isOutPinFinded && isInPinFinded) {
+                                canSkip = true;
+                                addLink();
+                            }
+                        }
+                        //click on output pin
+                        if (!isOutPinFinded) {
+                            for (int i = 0; i < elements.size() && !isOutPinFinded; i++) {
+                                if (elements.get(i).isClickOnOutPin(evX, evY)) {
+                                    isOutPinFinded = true;
+                                    outPin = i;
+                                    elements.get(i).outputPin.paint.setColor(Color.RED);
+                                    System.out.println("Out find. El = " + outPin);
+                                    invalidate();
+                                    canSkip = false;
+                                }
+                            }
+                            if (isInPinFinded && isOutPinFinded) {
+                                canSkip = true;
+                                addLink();
+                            }
+                        }
+                        //click on element
+                        for (int i = 0; i < elements.size() && !finded && !isInPinFinded && !isOutPinFinded; i++) {
+                            if (elements.get(i).isClickOnBorders(evX, evY)) {
+                                elements.get(i).isMove = false;
+                                finded = true;
+                                findedElement = i;
+                                dragX = evX - elements.get(findedElement).x;
+                                dragY = evY - elements.get(findedElement).y;
+                            }
+                        }
+                        if (canSkip) {
+                            skipPins();
                         }
                     }
-                        if (isInPinFinded&&isOutPinFinded){
-                            canSkip = true;
-                            addLink();
-                        }
-                    }
-                    //click on element
-                for (int i = 0; i<elements.size()&&!finded&&!isInPinFinded&&!isOutPinFinded; i++){
-                    if (elements.get(i).isClickOnBorders(evX,evY)){
-                        elements.get(i).isMove = false;
-                        finded = true;
-                        findedElement = i;
-                        dragX = evX - elements.get(findedElement).x;
-                        dragY = evY - elements.get(findedElement).y;
-                    }
-                }
-                if (canSkip){
-                    skipPins();
-                }
                 }
                 else{
+
+
                     for (int i = elements.size()-1; i>=0&&!finded;i--){
                         if (elements.get(i).isClickOnBorders(evX,evY)){
                             elements.remove(i);
@@ -163,6 +190,25 @@ public class Scheme extends View{
         invalidate();
     }
 
+    public void nameOutputSignals(){
+        int currentLetter = 0;
+        for (Element e : elements){
+            boolean flag = false;
+            for (int i  = currentLetter; i<alphabet.size()&& !flag;i++){
+                if (!signals.contains(alphabet.get(i))){
+                    e.outputPin.setTerm(alphabet.get(i));
+                    signals.add(alphabet.get(i));
+                    if ( e.outputPin.getLinks().size()>0)
+                    for (int j = 0; j < e.outputPin.getLinks().size();j++)
+                        e.outputPin.getLinks().get(j).inputPin.setTerm(alphabet.get(i));
+                    flag = true;
+                    currentLetter = i+1;
+                }
+            }
+        }
+        invalidate();
+    }
+
     public void skipPins(){
         if (isInPinFinded)
         elements.get(inPinElement).inputPins.get(inPin).paint.setColor(Color.BLACK);
@@ -172,4 +218,13 @@ public class Scheme extends View{
         isOutPinFinded = false;
         invalidate();
     }
+
+    public EditText getName_et() {
+        return name_et;
+    }
+
+    public void setName_et(EditText name_et) {
+        this.name_et = name_et;
+    }
+
 }

@@ -18,9 +18,9 @@ import java.util.ArrayList;
  */
 
 public class Element extends View {
-    final static float SMALL_H = 30;
+    final static float SMALL_H = 40;
     final static float LENGTH_IN = 30;
-    final static float WIDTH = 200;
+    final static float WIDTH = 120;
     final static float PIN_RADIUS = 12;
     Paint paint,backgroundPaint,textPaint;
     float w,h,x,y;

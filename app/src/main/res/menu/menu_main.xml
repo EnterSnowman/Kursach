@@ -9,8 +9,14 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/clear_scheme"
+        android:id="@+id/name_outputs"
         android:orderInCategory="101"
+        android:title="Сформировать выходные сигналы"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/clear_scheme"
+        android:orderInCategory="102"
         android:title="Очистить схему"
         app:showAsAction="always" />
 

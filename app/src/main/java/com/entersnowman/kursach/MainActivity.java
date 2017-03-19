@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
@@ -22,34 +23,61 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
     Scheme scheme;
     RelativeLayout r;
-    LinearLayout view;
+    LinearLayout dialog_view;
     final int DIALOG = 1;
+    final int SIGNAL_DIALOG = 2;
+    EditText nameSignal;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         r = (RelativeLayout) findViewById(R.id.cont);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        nameSignal = (EditText) findViewById(R.id.nameSignal);
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        final FloatingActionButton inputSignalsButton = (FloatingActionButton) findViewById(R.id.inputSignals);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                scheme.inputMode = false;
+                inputSignalsButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
                 if (scheme.deleteMode){
                     scheme.deleteMode = false;
                     view.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
                     Toast.makeText(MainActivity.this,"Режим удаления выключен",Toast.LENGTH_SHORT).show();
+                    nameSignal.setVisibility(View.INVISIBLE);
                 }
                 else{
                     scheme.deleteMode = true;
                     view.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
                     Toast.makeText(MainActivity.this,"Режим удаления включен",Toast.LENGTH_SHORT).show();
+                    nameSignal.setVisibility(View.INVISIBLE);
                 }
+            }
+        });
+
+        inputSignalsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            scheme.inputMode = ! scheme.inputMode;
+            scheme.deleteMode = false;
+            fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                if (scheme.inputMode){
+                    v.setBackgroundTintList(ColorStateList.valueOf(Color.YELLOW));
+                    nameSignal.setVisibility(View.VISIBLE);
+                }
+                else{
+                    v.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                    nameSignal.setVisibility(View.INVISIBLE);
+                }
+
             }
         });
         scheme = (Scheme) findViewById(R.id.scheme);
         Element e = new Element(this,"AND",3);
         scheme.addElement(e);
+        scheme.setName_et(nameSignal);
         scheme.invalidate();
     }
 
@@ -63,26 +91,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected Dialog onCreateDialog(int id) {
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
-        // создаем view из dialog.xml
-        view = (LinearLayout) getLayoutInflater()
-                .inflate(R.layout.dialog, null);
-        // устанавливаем ее, как содержимое тела диалога
-        adb.setView(view);
-        adb.setTitle("Добавить элемент (тип элементов, количество входов)");
-        adb.setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String type = ((Spinner)view.findViewById(R.id.typeOfElement)).getSelectedItem().toString();
-                int n = Integer.valueOf(((Spinner)view.findViewById(R.id.numberOfIns)).getSelectedItem().toString());
-                scheme.addElement(new Element(MainActivity.this,type,n));
-            }
-        }).setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        if (id==DIALOG) {
+            // создаем view из dialog.xml
+            dialog_view = (LinearLayout) getLayoutInflater()
+                    .inflate(R.layout.dialog, null);
+            // устанавливаем ее, как содержимое тела диалога
+            adb.setView(dialog_view);
+            adb.setTitle("Добавить элемент (тип элементов, количество входов)");
+            adb.setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String type = ((Spinner) dialog_view.findViewById(R.id.typeOfElement)).getSelectedItem().toString();
+                    int n = Integer.valueOf(((Spinner) dialog_view.findViewById(R.id.numberOfIns)).getSelectedItem().toString());
+                    scheme.addElement(new Element(MainActivity.this, type, n));
+                }
+            }).setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
 
-            }
-        });
+                }
+            });
+        }
+        if (id==SIGNAL_DIALOG){
 
+        }
         return adb.create();
     }
 
@@ -112,6 +144,10 @@ public class MainActivity extends AppCompatActivity {
             scheme.links.clear();
             scheme.invalidate();
             return true;
+        }
+
+        if (id== R.id.name_outputs){
+            scheme.nameOutputSignals();
         }
 
         return super.onOptionsItemSelected(item);
