@@ -17,6 +17,7 @@ public class InputPin extends View {
     Paint paint, textPaint;
     Link link;
     String term;
+    Element element;
 
     public InputPin(Context context, float y, float x1, float x2) {
         super(context);
@@ -63,5 +64,12 @@ public class InputPin extends View {
         this.term = term;
     }
 
+    public Element getElement() {
+        return element;
+    }
+
+    public void setElement(Element element) {
+        this.element = element;
+    }
 
 }

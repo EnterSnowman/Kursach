@@ -19,6 +19,15 @@ public class OutputPin extends View {
     Paint paint, textPaint;
     ArrayList<Link> links;
     String term;
+    Element element;
+
+    public Element getElement() {
+        return element;
+    }
+
+    public void setElement(Element element) {
+        this.element = element;
+    }
 
     public String getTerm() {
         return term;

@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import com.entersnowman.kursach.logic.LogicElement;
+
 import java.sql.SQLOutput;
 import java.util.ArrayList;
 
@@ -29,7 +31,17 @@ public class Element extends View {
     boolean isMove;
     ArrayList<InputPin> inputPins;
     OutputPin outputPin;
-    public Element(Context context,String t,int number) {
+    LogicElement logicElement;
+
+    public LogicElement getLogicElement() {
+        return logicElement;
+    }
+
+    public void setLogicElement(LogicElement logicElement) {
+        this.logicElement = logicElement;
+    }
+
+    public Element(Context context, String t, int number) {
         super(context);
         type = t;
         numberOfIns = number;
@@ -61,9 +73,11 @@ public class Element extends View {
         inputPins = new ArrayList<InputPin>();
         for (int i = 0; i < numberOfIns;i++){
             InputPin inputPin = new InputPin(getContext(),y+SMALL_H*(i+1),x-LENGTH_IN,x);
+            inputPin.setElement(this);
             inputPins.add(inputPin);
         }
         outputPin = new OutputPin(getContext(),y+h/2,x+w,x+w+LENGTH_IN);
+        outputPin.setElement(this);
         isMove = false;
     }
 

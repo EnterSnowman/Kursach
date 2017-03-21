@@ -9,6 +9,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 
+import com.entersnowman.kursach.logic.InputSignal;
+import com.entersnowman.kursach.logic.LogicElement;
+
 import java.util.ArrayList;
 
 /**
@@ -21,6 +24,7 @@ public class Scheme extends View{
     ArrayList<Link> links;
     ArrayList<String> signals;
     ArrayList<String> alphabet;
+    ArrayList<LogicElement> logicElements;
     boolean finded,deleteMode, inputMode, isInPinFinded,isOutPinFinded, canSkip;
     int findedElement,inPin,outPin, inPinElement;
     float dragX;
@@ -46,6 +50,7 @@ public class Scheme extends View{
     }
 
     public void init(){
+        logicElements = new ArrayList<LogicElement>();
         elements = new ArrayList<Element>();
         links = new ArrayList<Link>();
         paint = new Paint();
@@ -205,7 +210,22 @@ public class Scheme extends View{
                     currentLetter = i+1;
                 }
             }
+            LogicElement l = new LogicElement(e.outputPin.getTerm(),e.type);
+            for (int i=0;i<e.inputPins.size();i++){
+                if (e.inputPins.get(i).getLink()==null)
+                    l.getInputSignals().add(new InputSignal(e.inputPins.get(i).getTerm(),false));
+            }
+            e.setLogicElement(l);
         }
+        //create logic model
+        for (Element e: elements){
+            for (int i=0;i<e.inputPins.size();i++){
+                if (e.inputPins.get(i).getLink()!=null)
+                   e.getLogicElement().getInputElements().add( e.inputPins.get(i).getLink().outputPin.getElement().getLogicElement());
+            }
+            logicElements.add(e.getLogicElement());
+        }
+        outputLogicModel();
         invalidate();
     }
 
@@ -225,6 +245,16 @@ public class Scheme extends View{
 
     public void setName_et(EditText name_et) {
         this.name_et = name_et;
+    }
+
+    public void outputLogicModel(){
+        for (LogicElement l: logicElements){
+            System.out.println("Log element: "+l.getOutputName()+" "+l.getType());
+            for (LogicElement l1: l.getInputElements())
+                System.out.println(l1.getOutputName());
+            for (InputSignal i: l.getInputSignals())
+                System.out.println(i.getOutputName());
+        }
     }
 
 }
