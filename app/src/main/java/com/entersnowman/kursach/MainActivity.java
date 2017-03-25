@@ -75,8 +75,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         scheme = (Scheme) findViewById(R.id.scheme);
-        Element e = new Element(this,"AND",3);
+        Element e = new Element(this,"NAND",2);
+        Element e1 = new Element(this,"OR",2);
+        e1.inputPins.get(0).setTerm("a");
+        e1.inputPins.get(1).setTerm("b");
+        Element e2 = new Element(this,"AND",2);
+        e2.inputPins.get(0).setTerm("c");
+        e2.inputPins.get(1).setTerm("d");
         scheme.addElement(e);
+        scheme.addElement(e1);
+        scheme.addElement(e2);
         scheme.setName_et(nameSignal);
         scheme.invalidate();
     }
@@ -142,12 +150,19 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.clear_scheme) {
             scheme.elements.clear();
             scheme.links.clear();
+            scheme.signals.clear();
             scheme.invalidate();
             return true;
         }
 
         if (id== R.id.name_outputs){
             scheme.nameOutputSignals();
+            return true;
+        }
+
+        if (id== R.id.synthesis){
+            scheme.synthesis_test();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);

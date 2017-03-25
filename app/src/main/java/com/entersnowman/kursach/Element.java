@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import com.entersnowman.kursach.logic.InputSignal;
 import com.entersnowman.kursach.logic.LogicElement;
 
 import java.sql.SQLOutput;
@@ -151,5 +152,24 @@ public class Element extends View {
         }
         System.out.println("Pin "+r);
         return  r;
+    }
+
+    public void createLogicElement(){
+        logicElement = getLogic();
+    }
+
+    public LogicElement getLogic(){
+        LogicElement result = new LogicElement(outputPin.getTerm(),type);
+        System.out.println(outputPin.getTerm());
+        for (int i = 0; i< inputPins.size();i++){
+            if (inputPins.get(i).getLink()==null){
+                result.getInputSignals().add(new InputSignal(inputPins.get(i).getTerm(),true));
+            }
+            else
+            {
+                result.getInputElements().add(inputPins.get(i).getLink().getOutputPin().getElement().getLogic());
+            }
+        }
+        return result;
     }
 }

@@ -20,5 +20,11 @@
         android:title="Очистить схему"
         app:showAsAction="always" />
 
+    <item
+        android:id="@+id/synthesis"
+        android:orderInCategory="103"
+        android:title="Синтез теста"
+        app:showAsAction="always" />
+
 
 </menu>

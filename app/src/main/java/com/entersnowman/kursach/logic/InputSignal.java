@@ -5,10 +5,24 @@ package com.entersnowman.kursach.logic;
  */
 
 public class InputSignal extends  AbstractElement{
-    boolean inversion;
+    boolean value;
 
-    public InputSignal(String outputName,boolean inversion) {
-        this.inversion = inversion;
+    public boolean isValue() {
+        return value;
+    }
+
+    public void setValue(boolean value) {
+        this.value = value;
+    }
+
+    public InputSignal(String outputName, boolean value) {
+        this.value = value;
         this.outputName = outputName;
+    }
+
+    @Override
+    public String toString() {
+        return value +" "+ getOutputName();
+
     }
 }

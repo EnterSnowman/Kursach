@@ -11,6 +11,7 @@ import android.widget.EditText;
 
 import com.entersnowman.kursach.logic.InputSignal;
 import com.entersnowman.kursach.logic.LogicElement;
+import com.entersnowman.kursach.normalform.FormalConverter;
 
 import java.util.ArrayList;
 
@@ -197,19 +198,21 @@ public class Scheme extends View{
 
     public void nameOutputSignals(){
         int currentLetter = 0;
-        for (Element e : elements){
+        for (Element e : elements) {
             boolean flag = false;
-            for (int i  = currentLetter; i<alphabet.size()&& !flag;i++){
-                if (!signals.contains(alphabet.get(i))){
+            for (int i = currentLetter; i < alphabet.size() && !flag; i++) {
+                if (!signals.contains(alphabet.get(i))) {
                     e.outputPin.setTerm(alphabet.get(i));
                     signals.add(alphabet.get(i));
-                    if ( e.outputPin.getLinks().size()>0)
-                    for (int j = 0; j < e.outputPin.getLinks().size();j++)
-                        e.outputPin.getLinks().get(j).inputPin.setTerm(alphabet.get(i));
+                    if (e.outputPin.getLinks().size() > 0)
+                        for (int j = 0; j < e.outputPin.getLinks().size(); j++)
+                            e.outputPin.getLinks().get(j).inputPin.setTerm(alphabet.get(i));
                     flag = true;
-                    currentLetter = i+1;
+                    currentLetter = i + 1;
                 }
             }
+        }
+            /*
             LogicElement l = new LogicElement(e.outputPin.getTerm(),e.type);
             for (int i=0;i<e.inputPins.size();i++){
                 if (e.inputPins.get(i).getLink()==null)
@@ -219,13 +222,16 @@ public class Scheme extends View{
         }
         //create logic model
         for (Element e: elements){
+
+
+
             for (int i=0;i<e.inputPins.size();i++){
                 if (e.inputPins.get(i).getLink()!=null)
                    e.getLogicElement().getInputElements().add( e.inputPins.get(i).getLink().outputPin.getElement().getLogicElement());
             }
             logicElements.add(e.getLogicElement());
         }
-        outputLogicModel();
+        outputLogicModel();*/
         invalidate();
     }
 
@@ -247,14 +253,21 @@ public class Scheme extends View{
         this.name_et = name_et;
     }
 
-    public void outputLogicModel(){
-        for (LogicElement l: logicElements){
-            System.out.println("Log element: "+l.getOutputName()+" "+l.getType());
-            for (LogicElement l1: l.getInputElements())
-                System.out.println(l1.getOutputName());
-            for (InputSignal i: l.getInputSignals())
-                System.out.println(i.getOutputName());
+
+    public void synthesis_test(){
+        boolean flag = false;
+        for (int i = 0;i<elements.size()&&!flag;i++){
+            if (elements.get(i).getOutputPin().getLinks().size()==0){
+                flag = true;
+                elements.get(i).createLogicElement();
+                elements.get(i).getLogicElement().restruct(false);
+                elements.get(i).getLogicElement().printStructure();
+                //System.out.println(elements.get(i).getLogicElement().convertElementsToString(true).toString());
+                FormalConverter formalConverter = new FormalConverter(elements.get(i).getLogicElement().convertElementsToString(true).toString().replaceAll("\\s", ""));
+                System.out.println(formalConverter.convertToDNF());
+            }
         }
+
     }
 
 }
