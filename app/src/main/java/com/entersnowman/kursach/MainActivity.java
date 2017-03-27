@@ -15,6 +15,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -75,13 +77,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         scheme = (Scheme) findViewById(R.id.scheme);
-        Element e = new Element(this,"NAND",2);
+        Element e = new Element(this,"AND",2);
+        Element e1 = new Element(this,"OR",2);
+        Element e2 = new Element(this,"AND",2);
+        /*Element e = new Element(this,"NAND",2);
         Element e1 = new Element(this,"OR",2);
         e1.inputPins.get(0).setTerm("a");
         e1.inputPins.get(1).setTerm("b");
         Element e2 = new Element(this,"AND",2);
         e2.inputPins.get(0).setTerm("c");
         e2.inputPins.get(1).setTerm("d");
+        scheme.addElement(e);
+        scheme.addElement(e1);
+        scheme.addElement(e2);*/
         scheme.addElement(e);
         scheme.addElement(e1);
         scheme.addElement(e2);
@@ -121,8 +129,30 @@ public class MainActivity extends AppCompatActivity {
             });
         }
         if (id==SIGNAL_DIALOG){
+            dialog_view = (LinearLayout) getLayoutInflater()
+                    .inflate(R.layout.choose_signal_dialog, null);
+            final RadioGroup radioGroup = (RadioGroup) dialog_view.findViewById(R.id.list_of_signals);
+            for (String s: scheme.signals){
+                RadioButton radioButton = new RadioButton(this);
+                radioButton.setText(s);
+                radioGroup.addView(radioButton);
+            }
+            adb.setView(dialog_view);
+            adb.setTitle("Выбрать неполадку");
+            adb.setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    scheme.synthesis_test((String) ((RadioButton)radioGroup.findViewById(radioGroup.getCheckedRadioButtonId())).getText());
+                }
+            }).setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
 
+                }
+            });
         }
+
+
         return adb.create();
     }
 
@@ -161,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (id== R.id.synthesis){
-            scheme.synthesis_test();
+            showDialog(SIGNAL_DIALOG);
             return true;
         }
 

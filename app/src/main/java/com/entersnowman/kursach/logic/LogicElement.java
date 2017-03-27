@@ -1,6 +1,7 @@
 package com.entersnowman.kursach.logic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by Valentin on 21.03.2017.
@@ -10,11 +11,23 @@ public class LogicElement extends AbstractElement{
     ArrayList<LogicElement> inputElements;
     ArrayList<InputSignal> inputSignals;
     String type;
-    public LogicElement(String outputName,String type) {
+    ArrayList<ArrayList<String>> DNF;
+    String number;
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public LogicElement(String outputName, String type) {
         inputElements = new ArrayList<LogicElement>();
         inputSignals = new ArrayList<InputSignal>();
         this.outputName = outputName;
         this.type = type;
+        DNF = new ArrayList<ArrayList<String>>();
     }
 
     public static String operSign(String oper){
@@ -109,7 +122,17 @@ public class LogicElement extends AbstractElement{
         System.out.println("Res "+getOutputName()+" "+type);
     }
 
-
+    public void nameInputSignalsAsUniqChars(ArrayList<Character> possibleChars, HashMap<String,String > uniqChar_nameWithPath){
+        for (int i = 0;i<inputSignals.size();i++){
+            inputSignals.get(i).setOutputName(String.valueOf(possibleChars.get(0)));
+            String inv = "";
+            if (!inputSignals.get(i).isValue())
+                inv  ="¬";
+            uniqChar_nameWithPath.put(inv+String.valueOf(possibleChars.remove(0)),inputSignals.get(i).getNameWithPath());
+        }
+        for (int i = 0;i<inputElements.size();i++)
+            inputElements.get(i).nameInputSignalsAsUniqChars(possibleChars,uniqChar_nameWithPath);
+    }
     public ArrayList<LogicElement> getInputElements() {
         return inputElements;
     }
@@ -151,6 +174,8 @@ public class LogicElement extends AbstractElement{
         if (!isRoot)
         res.append("(");
         for (int i = 0; i< inputSignals.size();i++){
+            if(!inputSignals.get(i).isValue())
+                res.append("\u00AC");
             res.append(inputSignals.get(i).getOutputName());
             if (i<inputSignals.size()-1||inputElements.size()>0)
                 res.append(operSign(type));
@@ -166,20 +191,53 @@ public class LogicElement extends AbstractElement{
         return res;
     }
 
-    public ArrayList<LogicElement> toENF(String t){
-        ArrayList<LogicElement> res = new ArrayList<LogicElement>();
-        if (inputElements.size()>0){
-
-
-
-
+    public void setDNF(String nf){
+        setOutputName(nf);
+        String[] ands = nf.split("∨");
+        for (String s: ands){
+            s = s.replaceAll("\\(","");
+            s = s.replaceAll("\\)","");
+            s = s.replaceAll("\\s","");
+            String[] and = s.split("∧");
+            ArrayList<String> newAnd = new ArrayList<>();
+            for (String a: and)
+                newAnd.add(a);
+            DNF.add(newAnd);
         }
 
-
-
-
-
-        return  res;
+        for (ArrayList<String> f:DNF){
+            for (String s: f)
+                System.out.print(s+" ");
+            System.out.println();
+        }
+        System.out.println("=================================");
     }
+
+    public void replaceCharsToPath(HashMap<String,String> uniqChar_nameWithPath){
+        for (int i = 0; i<DNF.size();i++)
+            for (int j = 0;j<DNF.get(i).size();j++){
+                if (DNF.get(i).get(j).substring(0,1).equals("¬"))
+                DNF.get(i).set(j,"¬"+uniqChar_nameWithPath.get(DNF.get(i).get(j)));
+                else
+                 DNF.get(i).set(j,uniqChar_nameWithPath.get(DNF.get(i).get(j)));
+        }
+        System.out.println("After replacing");
+        for (ArrayList<String> f:DNF){
+            for (String s: f)
+                System.out.print(s+" ");
+            System.out.println();
+        }
+        System.out.println("=================================");
+    }
+
+    public ArrayList<String> getAllInputSignals(){
+        ArrayList<String> res = new ArrayList<String>();
+        for (int i = 0;i<inputSignals.size();i++)
+            res.add(inputSignals.get(i).getOutputName());
+        for (int i = 0;i<inputElements.size();i++)
+            res.addAll(inputElements.get(i).getAllInputSignals());
+        return res;
+    }
+
 
 }

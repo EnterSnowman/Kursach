@@ -14,6 +14,8 @@ import com.entersnowman.kursach.logic.LogicElement;
 import com.entersnowman.kursach.normalform.FormalConverter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Valentin on 14.03.2017.
@@ -26,6 +28,8 @@ public class Scheme extends View{
     ArrayList<String> signals;
     ArrayList<String> alphabet;
     ArrayList<LogicElement> logicElements;
+    ArrayList<Character> posChars;
+    HashMap<String,String> char_path;
     boolean finded,deleteMode, inputMode, isInPinFinded,isOutPinFinded, canSkip;
     int findedElement,inPin,outPin, inPinElement;
     float dragX;
@@ -65,6 +69,17 @@ public class Scheme extends View{
         isInPinFinded = false;
         isOutPinFinded = false;
         canSkip = true;
+        posChars = new ArrayList<Character>();
+        char_path = new HashMap<String, String>();
+        //digits
+        for (int i = 48;i<58;i++)
+            posChars.add((char) i);
+        //low case
+        for (int i = 64;i<91;i++)
+            posChars.add((char) i);
+        //up case
+        for (int i = 97;i<123;i++)
+            posChars.add((char) i);
         signals = new ArrayList<String>();
         alphabet = new ArrayList<String>();
         for (int i =0 ; i < "abcdefghijklmnopqrstuvwxyz".length();i++)
@@ -197,9 +212,12 @@ public class Scheme extends View{
     }
 
     public void nameOutputSignals(){
+        int n = 0;
         int currentLetter = 0;
         for (Element e : elements) {
             boolean flag = false;
+            e.setNumber(Integer.toString(n));
+            n++;
             for (int i = currentLetter; i < alphabet.size() && !flag; i++) {
                 if (!signals.contains(alphabet.get(i))) {
                     e.outputPin.setTerm(alphabet.get(i));
@@ -212,26 +230,6 @@ public class Scheme extends View{
                 }
             }
         }
-            /*
-            LogicElement l = new LogicElement(e.outputPin.getTerm(),e.type);
-            for (int i=0;i<e.inputPins.size();i++){
-                if (e.inputPins.get(i).getLink()==null)
-                    l.getInputSignals().add(new InputSignal(e.inputPins.get(i).getTerm(),false));
-            }
-            e.setLogicElement(l);
-        }
-        //create logic model
-        for (Element e: elements){
-
-
-
-            for (int i=0;i<e.inputPins.size();i++){
-                if (e.inputPins.get(i).getLink()!=null)
-                   e.getLogicElement().getInputElements().add( e.inputPins.get(i).getLink().outputPin.getElement().getLogicElement());
-            }
-            logicElements.add(e.getLogicElement());
-        }
-        outputLogicModel();*/
         invalidate();
     }
 
@@ -254,19 +252,47 @@ public class Scheme extends View{
     }
 
 
-    public void synthesis_test(){
+    public void synthesis_test(String letter){
         boolean flag = false;
+        int root;
+        System.out.println("Letter "+letter);
         for (int i = 0;i<elements.size()&&!flag;i++){
             if (elements.get(i).getOutputPin().getLinks().size()==0){
+                root = i;
                 flag = true;
                 elements.get(i).createLogicElement();
                 elements.get(i).getLogicElement().restruct(false);
-                elements.get(i).getLogicElement().printStructure();
-                //System.out.println(elements.get(i).getLogicElement().convertElementsToString(true).toString());
+                elements.get(i).getLogicElement().nameInputSignalsAsUniqChars(posChars,char_path);
                 FormalConverter formalConverter = new FormalConverter(elements.get(i).getLogicElement().convertElementsToString(true).toString().replaceAll("\\s", ""));
-                System.out.println(formalConverter.convertToDNF());
+                elements.get(i).getLogicElement().setDNF(formalConverter.convertToDNF());
+                for (Map.Entry<String,String> entry:char_path.entrySet())
+                    System.out.println(entry.getKey()+" : "+entry.getValue());
+                elements.get(i).getLogicElement().replaceCharsToPath(char_path);
             }
         }
+        boolean isFinded = false;
+        int whichWrong = -1;
+        for (int i = 0; i < elements.size()&&!isFinded;i++){
+            if (elements.get(i).getOutputPin().getTerm().equals(letter)){
+                isFinded = true;
+                whichWrong = i;
+
+            }
+        }
+        if (whichWrong!=-1){//output
+        elements.get(whichWrong).createLogicElement();
+        elements.get(whichWrong).getLogicElement().restruct(false);
+            FormalConverter formalConverter = new FormalConverter(elements.get(whichWrong).getLogicElement().convertElementsToString(true).toString().replaceAll("\\s", ""));
+            elements.get(whichWrong).getLogicElement().setDNF(formalConverter.convertToDNF());
+        }
+        else//input signal
+        {
+
+        }
+
+    }
+
+    public void makeTest(String signal){
 
     }
 

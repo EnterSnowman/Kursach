@@ -6,7 +6,7 @@ package com.entersnowman.kursach.logic.core;
  */
 public class Constants {
 
-
+    
     public static char NOT       = '\u00AC'; /* '¬'; */
     public static char AND       = '\u2227'; /* '^'; */
     public static char OR        = '\u2228'; /* 'v'; */
@@ -93,7 +93,6 @@ public class Constants {
         return "" + operator;
     }
     
-
 
     
     public static String getBlanksLine(int numLines) {

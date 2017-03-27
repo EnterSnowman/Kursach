@@ -6,6 +6,15 @@ package com.entersnowman.kursach.logic;
 
 public class InputSignal extends  AbstractElement{
     boolean value;
+    String nameWithPath;
+
+    public String getNameWithPath() {
+        return nameWithPath;
+    }
+
+    public void setNameWithPath(String nameWithPath) {
+        this.nameWithPath = nameWithPath;
+    }
 
     public boolean isValue() {
         return value;

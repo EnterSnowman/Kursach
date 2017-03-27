@@ -33,7 +33,7 @@ public class Element extends View {
     ArrayList<InputPin> inputPins;
     OutputPin outputPin;
     LogicElement logicElement;
-
+    String number;
     public LogicElement getLogicElement() {
         return logicElement;
     }
@@ -92,6 +92,8 @@ public class Element extends View {
         }
         outputPin.draw(canvas);
         canvas.drawText(type,x+w/2,(y+h/2) - ((textPaint.descent() + textPaint.ascent()) / 2),textPaint);
+        if (number!=null)
+            canvas.drawText(number,x+w/2,(y+h/2) - ((textPaint.descent() + textPaint.ascent()) / 2)+30,textPaint);
         if (type.equals("NAND")||type.equals("NOR")){
             canvas.drawCircle(x+w,y+h/2,PIN_RADIUS,backgroundPaint);
             canvas.drawCircle(x+w,y+h/2,PIN_RADIUS,paint);
@@ -155,21 +157,42 @@ public class Element extends View {
     }
 
     public void createLogicElement(){
-        logicElement = getLogic();
+        logicElement = getLogic(null);
+
     }
 
-    public LogicElement getLogic(){
+
+
+    public LogicElement getLogic(String path){
+        String newPath;
+        if (path!=null)
+        newPath = number.concat(path);
+        else
+            newPath = number;
         LogicElement result = new LogicElement(outputPin.getTerm(),type);
+        result.setNumber(getNumber());
         System.out.println(outputPin.getTerm());
         for (int i = 0; i< inputPins.size();i++){
             if (inputPins.get(i).getLink()==null){
-                result.getInputSignals().add(new InputSignal(inputPins.get(i).getTerm(),true));
+                InputSignal n = new InputSignal(inputPins.get(i).getTerm(),true);
+                n.setNameWithPath(n.getOutputName().concat(newPath));
+                result.getInputSignals().add(n);
             }
             else
             {
-                result.getInputElements().add(inputPins.get(i).getLink().getOutputPin().getElement().getLogic());
+                result.getInputElements().add(inputPins.get(i).getLink().getOutputPin().getElement().getLogic(newPath));
             }
         }
         return result;
     }
+
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
 }
