@@ -22,6 +22,19 @@ public class LogicElement extends AbstractElement{
         this.number = number;
     }
 
+    public ArrayList<ArrayList<String>> getDNF() {
+        return DNF;
+    }
+
+    public void setDNF(ArrayList<ArrayList<String>> DNF) {
+        this.DNF = DNF;
+    }
+
+    public HashMap<String ,Boolean> getSeqForZero(){
+        HashMap<String,Boolean> res=  new HashMap<String, Boolean>();
+        return res;
+    }
+
     public LogicElement(String outputName, String type) {
         inputElements = new ArrayList<LogicElement>();
         inputSignals = new ArrayList<InputSignal>();
@@ -236,6 +249,24 @@ public class LogicElement extends AbstractElement{
             res.add(inputSignals.get(i).getOutputName());
         for (int i = 0;i<inputElements.size();i++)
             res.addAll(inputElements.get(i).getAllInputSignals());
+        return res;
+    }
+
+    public ArrayList<String> getListOfAllLetter(){
+        ArrayList<String> res=  new ArrayList<String>();
+        for (ArrayList<String> f:DNF){
+            for (String s: f){
+            if (s.substring(0,1).equals("¬")){
+                if (!res.contains(s.substring(1,2)))
+                    res.add(s.substring(1,2));
+            }
+                else {
+                if (!res.contains(s.substring(0,1)))
+                    res.add(s.substring(0,1));
+            }
+
+            }
+        }
         return res;
     }
 

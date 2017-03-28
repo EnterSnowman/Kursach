@@ -254,7 +254,7 @@ public class Scheme extends View{
 
     public void synthesis_test(String letter){
         boolean flag = false;
-        int root;
+        int root = -1;
         System.out.println("Letter "+letter);
         for (int i = 0;i<elements.size()&&!flag;i++){
             if (elements.get(i).getOutputPin().getLinks().size()==0){
@@ -282,18 +282,124 @@ public class Scheme extends View{
         if (whichWrong!=-1){//output
         elements.get(whichWrong).createLogicElement();
         elements.get(whichWrong).getLogicElement().restruct(false);
-            FormalConverter formalConverter = new FormalConverter(elements.get(whichWrong).getLogicElement().convertElementsToString(true).toString().replaceAll("\\s", ""));
-            elements.get(whichWrong).getLogicElement().setDNF(formalConverter.convertToDNF());
+        FormalConverter formalConverter = new FormalConverter(elements.get(whichWrong).getLogicElement().convertElementsToString(true).toString().replaceAll("\\s", ""));
+        elements.get(whichWrong).getLogicElement().setDNF(formalConverter.convertToDNF());
+            boolean isTestFinded = false;
+            //for each term in DNF of testing signal
+            for (int i = 0;i<elements.get(whichWrong).getLogicElement().getDNF().size();i++){
+                ArrayList<String> oneTermSignal = elements.get(whichWrong).getLogicElement().getDNF().get(i);
+
+
+
+
+            }
+
+
         }
         else//input signal
         {
+            if (root!=-1) {
+                boolean isFindedZero = false,isFindedOne = false;
+                //неисправность хі = 0
 
+                for (int i = 0; i < elements.get(root).getLogicElement().getDNF().size()&&!isFindedZero; i++) {
+                    HashMap<String, Boolean> values = new HashMap<String, Boolean>();
+                    values.put(letter, true);
+                    ArrayList<String> otherLetters = elements.get(root).getLogicElement().getListOfAllLetter();
+                    otherLetters.remove(letter);
+                    boolean isGoodTerm = false;
+                    int goodTerm=i;
+                    ArrayList<String> oneTerm = elements.get(root).getLogicElement().getDNF().get(i);
+                    for (int j = 0;j<oneTerm.size()&&!isGoodTerm;j++){
+                        if (oneTerm.get(j).substring(0,1).equals(letter)){//finded good term
+                            isGoodTerm = true;
+                            for (int k = 0; k < oneTerm.size(); k++) {//set values of other letters in good term
+                                if (!oneTerm.get(k).substring(0,1).equals(letter)&&!oneTerm.get(k).substring(1,2).equals(letter)){
+                                    if (oneTerm.get(k).substring(0,1).equals("¬")){
+                                        if (!values.containsKey(oneTerm.get(k).substring(1,2))){
+                                            values.put(oneTerm.get(k).substring(1,2),false);
+                                            otherLetters.remove(oneTerm.get(k).substring(1,2));
+                                        }
+                                        else
+                                            isGoodTerm = false;
+                                    }
+                                    else {
+                                        if (!values.containsKey(oneTerm.get(k).substring(0,1))){
+                                            values.put(oneTerm.get(k).substring(0,1),true);
+                                            otherLetters.remove(oneTerm.get(k).substring(0,1));
+                                        }
+                                        else
+                                            isGoodTerm = false;
+                                    }
+
+
+                                }
+                            }
+
+
+
+                        }
+                    }
+                    if (isGoodTerm){
+                        //forming list of possible values
+                        ArrayList<HashMap<String,Boolean>> variants = new ArrayList<HashMap<String, Boolean>>();
+                        boolean isBadVariant = false;
+                        for (int j = 0;j<Math.pow(2,otherLetters.size())&&!isBadVariant;j++){
+                            isBadVariant = false;
+                            HashMap<String,Boolean> var = new HashMap<String, Boolean>();
+                            for (int k = 0; k<otherLetters.size();k++){
+                                if (getBit(j,k)==1)
+                                    var.put(otherLetters.get(k),true);
+                                else
+                                    var.put(otherLetters.get(k),false);
+                            }
+                            for (Map.Entry<String,Boolean> e: values.entrySet())
+                                var.put(e.getKey(),e.getValue());
+                            //checking current variant
+                            for (int k = 0; k < elements.get(root).getLogicElement().getDNF().size()&&!isBadVariant; k++) {
+                                boolean res = true;
+                                if (k!=i){
+                                for (String s: elements.get(root).getLogicElement().getDNF().get(k)){
+                                    if (s.substring(0,1).equals("¬"))
+                                        res = res&&var.get(s.substring(1,2));
+                                    else
+                                        res = res&&var.get(s.substring(0,1));
+
+                                }
+                                if (res)
+                                    isBadVariant = true;
+                                }
+                            }
+                            if (!isBadVariant){
+                                isFindedZero = true;
+                                System.out.println("Finded combination");
+                                for (Map.Entry<String,Boolean> e: var.entrySet())
+                                    System.out.print(e.getKey()+" "+e.getValue()+" ");
+                            }
+                            
+                            
+                            
+                            variants.add(var);
+
+                        }
+                        System.out.println("Print variants");
+                        for (HashMap<String,Boolean> v:variants){
+                            for (Map.Entry<String,Boolean> e: v.entrySet())
+                                System.out.print(e.getKey()+" "+e.getValue()+" ");
+                            System.out.println();
+
+                        }
+                    }
+                }
+
+
+            }
         }
 
     }
-
-    public void makeTest(String signal){
-
+    public int getBit(int value,int position)
+    {
+        return (value >> position) & 1;
     }
 
 }
