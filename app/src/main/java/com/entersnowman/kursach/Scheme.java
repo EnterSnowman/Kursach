@@ -311,40 +311,48 @@ public class Scheme extends View{
                     int goodTerm=i;
                     ArrayList<String> oneTerm = elements.get(root).getLogicElement().getDNF().get(i);
                     for (int j = 0;j<oneTerm.size()&&!isGoodTerm;j++){
+                        boolean inverseOfLetter = false;
                         if (oneTerm.get(j).substring(0,1).equals(letter)){//finded good term
                             isGoodTerm = true;
-                            for (int k = 0; k < oneTerm.size(); k++) {//set values of other letters in good term
-                                if (!oneTerm.get(k).substring(0,1).equals(letter)&&!oneTerm.get(k).substring(1,2).equals(letter)){
-                                    if (oneTerm.get(k).substring(0,1).equals("¬")){
-                                        if (!values.containsKey(oneTerm.get(k).substring(1,2))){
-                                            values.put(oneTerm.get(k).substring(1,2),false);
-                                            otherLetters.remove(oneTerm.get(k).substring(1,2));
-                                        }
-                                        else
-                                            isGoodTerm = false;
+                        }
+                        else if (oneTerm.get(j).substring(0,2).equals("¬"+letter)){
+                            inverseOfLetter = true;
+                            isGoodTerm = true;
+                        }
+                        for (int k = 0; k < oneTerm.size(); k++) {//set values of other letters in good term
+                            if (!oneTerm.get(k).substring(0,1).equals(letter)&&!oneTerm.get(k).substring(1,2).equals(letter)){
+                                if (oneTerm.get(k).substring(0,1).equals("¬")){
+                                    if (!values.containsKey(oneTerm.get(k).substring(1,2))){
+                                        values.put(oneTerm.get(k).substring(1,2),false);
+                                        otherLetters.remove(oneTerm.get(k).substring(1,2));
                                     }
-                                    else {
-                                        if (!values.containsKey(oneTerm.get(k).substring(0,1))){
-                                            values.put(oneTerm.get(k).substring(0,1),true);
-                                            otherLetters.remove(oneTerm.get(k).substring(0,1));
-                                        }
-                                        else
-                                            isGoodTerm = false;
-                                    }
-
-
+                                    else if (values.get(oneTerm.get(k).substring(1,2)))
+                                        isGoodTerm = false;
                                 }
+                                else {
+                                    if (!values.containsKey(oneTerm.get(k).substring(0,1))){
+                                        values.put(oneTerm.get(k).substring(0,1),true);
+                                        otherLetters.remove(oneTerm.get(k).substring(0,1));
+                                    }
+                                    else if (!values.get(oneTerm.get(k).substring(0,1)))
+                                        isGoodTerm = false;
+                                }
+
+
+                            } else {
+                                if (inverseOfLetter&&oneTerm.get(k).substring(0,1).equals(letter))
+                                    isGoodTerm = false;
+                                else if (!inverseOfLetter&&oneTerm.get(k).substring(0,2).equals("¬"+letter))
+                                    isGoodTerm = false;
+
                             }
-
-
-
                         }
                     }
                     if (isGoodTerm){
                         //forming list of possible values
                         ArrayList<HashMap<String,Boolean>> variants = new ArrayList<HashMap<String, Boolean>>();
                         boolean isBadVariant = false;
-                        for (int j = 0;j<Math.pow(2,otherLetters.size())&&!isBadVariant;j++){
+                        for (int j = 0;j<Math.pow(2,otherLetters.size())&&!isFindedZero;j++){
                             isBadVariant = false;
                             HashMap<String,Boolean> var = new HashMap<String, Boolean>();
                             for (int k = 0; k<otherLetters.size();k++){
@@ -361,7 +369,7 @@ public class Scheme extends View{
                                 if (k!=i){
                                 for (String s: elements.get(root).getLogicElement().getDNF().get(k)){
                                     if (s.substring(0,1).equals("¬"))
-                                        res = res&&var.get(s.substring(1,2));
+                                        res = res&&!var.get(s.substring(1,2));
                                     else
                                         res = res&&var.get(s.substring(0,1));
 
@@ -372,7 +380,7 @@ public class Scheme extends View{
                             }
                             if (!isBadVariant){
                                 isFindedZero = true;
-                                System.out.println("Finded combination");
+                                System.out.println("Finded combination for 0");
                                 for (Map.Entry<String,Boolean> e: var.entrySet())
                                     System.out.print(e.getKey()+" "+e.getValue()+" ");
                             }
@@ -391,8 +399,105 @@ public class Scheme extends View{
                         }
                     }
                 }
+                //неисправность xi = 1
+                for (int i = 0; i < elements.get(root).getLogicElement().getDNF().size()&&!isFindedOne; i++) {
+                    HashMap<String, Boolean> values = new HashMap<String, Boolean>();
+                    values.put(letter, false);
+                    ArrayList<String> otherLetters = elements.get(root).getLogicElement().getListOfAllLetter();
+                    otherLetters.remove(letter);
+                    boolean isGoodTerm = false;
+                    int goodTerm=i;
+                    ArrayList<String> oneTerm = elements.get(root).getLogicElement().getDNF().get(i);
+                    for (int j = 0;j<oneTerm.size()&&!isGoodTerm;j++){
+                        boolean inverseOfLetter = false;
+                        if (oneTerm.get(j).substring(0,1).equals(letter)){//finded good term
+                            isGoodTerm = true;
+                        }
+                        else if (oneTerm.get(j).substring(0,2).equals("¬"+letter)){
+                            inverseOfLetter = true;
+                            isGoodTerm = true;
+                        }
+                        for (int k = 0; k < oneTerm.size(); k++) {//set values of other letters in good term
+                            if (!oneTerm.get(k).substring(0,1).equals(letter)&&!oneTerm.get(k).substring(1,2).equals(letter)){
+                                if (oneTerm.get(k).substring(0,1).equals("¬")){
+                                    if (!values.containsKey(oneTerm.get(k).substring(1,2))){
+                                        values.put(oneTerm.get(k).substring(1,2),false);
+                                        otherLetters.remove(oneTerm.get(k).substring(1,2));
+                                    }
+                                    else if (values.get(oneTerm.get(k).substring(1,2)))
+                                        isGoodTerm = false;
+                                }
+                                else {
+                                    if (!values.containsKey(oneTerm.get(k).substring(0,1))){
+                                        values.put(oneTerm.get(k).substring(0,1),true);
+                                        otherLetters.remove(oneTerm.get(k).substring(0,1));
+                                    }
+                                    else if (!values.get(oneTerm.get(k).substring(0,1)))
+                                        isGoodTerm = false;
+                                }
 
 
+                            } else {
+                                if (inverseOfLetter&&oneTerm.get(k).substring(0,1).equals(letter))
+                                    isGoodTerm = false;
+                                else if (!inverseOfLetter&&oneTerm.get(k).substring(0,2).equals("¬"+letter))
+                                    isGoodTerm = false;
+
+                            }
+                        }
+                    }
+                    if (isGoodTerm){
+                        //forming list of possible values
+                        ArrayList<HashMap<String,Boolean>> variants = new ArrayList<HashMap<String, Boolean>>();
+                        boolean isBadVariant = false;
+                        for (int j = 0;j<Math.pow(2,otherLetters.size())&&!isFindedOne;j++){
+                            isBadVariant = false;
+                            HashMap<String,Boolean> var = new HashMap<String, Boolean>();
+                            for (int k = 0; k<otherLetters.size();k++){
+                                if (getBit(j,k)==1)
+                                    var.put(otherLetters.get(k),true);
+                                else
+                                    var.put(otherLetters.get(k),false);
+                            }
+                            for (Map.Entry<String,Boolean> e: values.entrySet())
+                                var.put(e.getKey(),e.getValue());
+                            //checking current variant
+                            for (int k = 0; k < elements.get(root).getLogicElement().getDNF().size()&&!isBadVariant; k++) {
+                                boolean res = true;
+                                if (k!=i){
+                                    for (String s: elements.get(root).getLogicElement().getDNF().get(k)){
+                                        if (s.substring(0,1).equals("¬"))
+                                            res = res&&!var.get(s.substring(1,2));
+                                        else
+                                            res = res&&var.get(s.substring(0,1));
+
+                                    }
+                                    if (res)
+                                        isBadVariant = true;
+                                }
+                            }
+                            if (!isBadVariant){
+                                isFindedOne = true;
+                                System.out.println("Finded combination for 1");
+                                for (Map.Entry<String,Boolean> e: var.entrySet())
+                                    System.out.print(e.getKey()+" "+e.getValue()+" ");
+                                System.out.println();
+                            }
+
+
+
+                            variants.add(var);
+
+                        }
+                        System.out.println("Print variants");
+                        for (HashMap<String,Boolean> v:variants){
+                            for (Map.Entry<String,Boolean> e: v.entrySet())
+                                System.out.print(e.getKey()+" "+e.getValue()+" ");
+                            System.out.println();
+
+                        }
+                    }
+                }
             }
         }
 
