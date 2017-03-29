@@ -1,5 +1,6 @@
 package com.entersnowman.kursach;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -29,6 +30,8 @@ public class Scheme extends View{
     ArrayList<String> alphabet;
     ArrayList<LogicElement> logicElements;
     ArrayList<Character> posChars;
+    ArrayList<String> result_test;
+    Activity activity;
     HashMap<String,String> char_path;
     boolean finded,deleteMode, inputMode, isInPinFinded,isOutPinFinded, canSkip;
     int findedElement,inPin,outPin, inPinElement;
@@ -68,6 +71,7 @@ public class Scheme extends View{
         inputMode=  false;
         isInPinFinded = false;
         isOutPinFinded = false;
+        result_test = new ArrayList<String>();
         canSkip = true;
         posChars = new ArrayList<Character>();
         char_path = new HashMap<String, String>();
@@ -264,10 +268,13 @@ public class Scheme extends View{
                 elements.get(i).getLogicElement().restruct(false);
                 elements.get(i).getLogicElement().nameInputSignalsAsUniqChars(posChars,char_path);
                 FormalConverter formalConverter = new FormalConverter(elements.get(i).getLogicElement().convertElementsToString(true).toString().replaceAll("\\s", ""));
-                elements.get(i).getLogicElement().setDNF(formalConverter.convertToDNF());
+                String enf = formalConverter.convertToDNF();
+
+                elements.get(i).getLogicElement().setDNF(enf);
                 for (Map.Entry<String,String> entry:char_path.entrySet())
                     System.out.println(entry.getKey()+" : "+entry.getValue());
                 elements.get(i).getLogicElement().replaceCharsToPath(char_path);
+                result_test.add(elements.get(i).getLogicElement().getDNFInOneString());
             }
         }
         boolean isFinded = false;
@@ -299,6 +306,7 @@ public class Scheme extends View{
         else//input signal
         {
             if (root!=-1) {
+                result_test.add(letter);
                 boolean isFindedZero = false,isFindedOne = false;
                 //неисправность хі = 0
 
@@ -380,9 +388,13 @@ public class Scheme extends View{
                             }
                             if (!isBadVariant){
                                 isFindedZero = true;
+                                StringBuilder res = new StringBuilder();
                                 System.out.println("Finded combination for 0");
-                                for (Map.Entry<String,Boolean> e: var.entrySet())
+                                for (Map.Entry<String,Boolean> e: var.entrySet()){
                                     System.out.print(e.getKey()+" "+e.getValue()+" ");
+                                    res.append(e.getKey()+" = "+getBit(e.getValue())+" ");
+                                }
+                                result_test.add(res.toString());
                             }
                             
                             
@@ -479,8 +491,12 @@ public class Scheme extends View{
                             if (!isBadVariant){
                                 isFindedOne = true;
                                 System.out.println("Finded combination for 1");
-                                for (Map.Entry<String,Boolean> e: var.entrySet())
+                                StringBuilder res = new StringBuilder();
+                                for (Map.Entry<String,Boolean> e: var.entrySet()){
                                     System.out.print(e.getKey()+" "+e.getValue()+" ");
+                                    res.append(e.getKey()+" = "+getBit(e.getValue())+" ");
+                                }
+                                result_test.add(res.toString());
                                 System.out.println();
                             }
 
@@ -491,20 +507,32 @@ public class Scheme extends View{
                         }
                         System.out.println("Print variants");
                         for (HashMap<String,Boolean> v:variants){
-                            for (Map.Entry<String,Boolean> e: v.entrySet())
+
+                            for (Map.Entry<String,Boolean> e: v.entrySet()){
                                 System.out.print(e.getKey()+" "+e.getValue()+" ");
+
                             System.out.println();
 
                         }
                     }
                 }
+                activity.showDialog(MainActivity.RESULT_DIALOG);
+
             }
         }
 
     }
+    }
+
+    public void setActivity(Activity activity){this.activity = activity;}
     public int getBit(int value,int position)
     {
         return (value >> position) & 1;
     }
-
+    public String getBit(boolean value){
+        if (value)
+            return "1";
+        else
+            return "0";
+    }
 }

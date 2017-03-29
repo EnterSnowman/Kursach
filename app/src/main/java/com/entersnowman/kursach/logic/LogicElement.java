@@ -243,6 +243,18 @@ public class LogicElement extends AbstractElement{
         System.out.println("=================================");
     }
 
+    public String getDNFInOneString(){
+        StringBuffer res=  new StringBuffer();
+        for (ArrayList<String> f:DNF){
+            for (String s: f){
+                res.append(s+" ");
+            }
+            res.append("v ");
+
+        }
+        return res.substring(0,res.length()-2);
+    }
+
     public ArrayList<String> getAllInputSignals(){
         ArrayList<String> res = new ArrayList<String>();
         for (int i = 0;i<inputSignals.size();i++)

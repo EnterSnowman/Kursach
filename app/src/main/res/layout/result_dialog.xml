@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ЭДНФ"
+        android:textSize="20sp"
+        android:textColor="#000000"/>
+    <TextView
+        android:id="@+id/enf"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ЭДНФ"
+        android:textSize="20sp"
+        android:textColor="#000000"/>
+    <TextView
+        android:id="@+id/labelForZero"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="20sp"
+        android:textColor="#000000"/>
+    <TextView
+        android:id="@+id/resultZero"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="20sp"
+        android:textColor="#000000"/>
+    <TextView
+        android:id="@+id/labelForOne"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="20sp"
+        android:textColor="#000000"/>
+    <TextView
+        android:id="@+id/resultOne"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="20sp"
+        android:textColor="#000000"/>
+</LinearLayout>

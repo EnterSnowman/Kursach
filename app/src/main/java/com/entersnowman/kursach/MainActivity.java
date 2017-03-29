@@ -26,8 +26,9 @@ public class MainActivity extends AppCompatActivity {
     Scheme scheme;
     RelativeLayout r;
     LinearLayout dialog_view;
-    final int DIALOG = 1;
-    final int SIGNAL_DIALOG = 2;
+    final static  int DIALOG = 1;
+    final static  int SIGNAL_DIALOG = 2;
+    final static  int RESULT_DIALOG = 3;
     EditText nameSignal;
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -77,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         scheme = (Scheme) findViewById(R.id.scheme);
+        scheme.setActivity(this);
         Element e = new Element(this,"AND",2);
         Element e1 = new Element(this,"OR",2);
         Element e2 = new Element(this,"AND",2);
@@ -139,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
             }
             adb.setView(dialog_view);
             adb.setTitle("Выбрать неполадку");
-            adb.setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
+            adb.setPositiveButton("Синтезировать", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     scheme.synthesis_test((String) ((RadioButton)radioGroup.findViewById(radioGroup.getCheckedRadioButtonId())).getText());
@@ -150,6 +152,24 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             });
+        }
+
+        if (id == RESULT_DIALOG){
+            dialog_view = (LinearLayout) getLayoutInflater()
+                    .inflate(R.layout.result_dialog, null);
+
+            adb.setView(dialog_view);
+            adb.setTitle("Cинтезированый тест");
+            TextView enf = (TextView) dialog_view.findViewById(R.id.enf);
+            TextView label0 = (TextView) dialog_view.findViewById(R.id.labelForZero);
+            TextView res0 = (TextView) dialog_view.findViewById(R.id.resultZero);
+            TextView label1 = (TextView) dialog_view.findViewById(R.id.labelForOne);
+            TextView res1 = (TextView) dialog_view.findViewById(R.id.resultOne);
+            enf.setText(scheme.result_test.get(0));
+            label0.setText("Неисправность "+scheme.result_test.get(1)+" = 0");
+            res0.setText(scheme.result_test.get(2));
+            label1.setText("Неисправность "+scheme.result_test.get(1)+" = 1");
+            res1.setText(scheme.result_test.get(3));
         }
 
 
@@ -182,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
             scheme.links.clear();
             scheme.signals.clear();
             scheme.invalidate();
+            scheme.result_test.clear();
             return true;
         }
 
