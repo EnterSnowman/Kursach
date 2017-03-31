@@ -161,6 +161,11 @@ public class Element extends View {
 
     }
 
+    public void createLogicElement(String middleSignal){
+        logicElement = getLogic(null, middleSignal);
+
+    }
+
 
 
     public LogicElement getLogic(String path){
@@ -181,6 +186,35 @@ public class Element extends View {
             else
             {
                 result.getInputElements().add(inputPins.get(i).getLink().getOutputPin().getElement().getLogic(newPath));
+            }
+        }
+        return result;
+    }
+    //create logic with middle signal
+    public LogicElement getLogic(String path, String middleSignal){
+        String newPath;
+        if (path!=null)
+            newPath = number.concat(path);
+        else
+            newPath = number;
+        LogicElement result = new LogicElement(outputPin.getTerm(),type);
+        result.setNumber(getNumber());
+        System.out.println(outputPin.getTerm());
+        for (int i = 0; i< inputPins.size();i++){
+            if (inputPins.get(i).getLink()==null){
+                InputSignal n = new InputSignal(inputPins.get(i).getTerm(),true);
+                n.setNameWithPath(n.getOutputName().concat(newPath));
+                result.getInputSignals().add(n);
+            }
+            else
+            {
+                if (inputPins.get(i).getLink().getOutputPin().getTerm().equals(middleSignal)){
+                    InputSignal n = new InputSignal(middleSignal,true);
+                    n.setNameWithPath(n.getOutputName().concat(newPath));
+                    result.getInputSignals().add(n);
+                }
+                else
+                result.getInputElements().add(inputPins.get(i).getLink().getOutputPin().getElement().getLogic(newPath,middleSignal));
             }
         }
         return result;

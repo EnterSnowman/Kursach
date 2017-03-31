@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.ScrollingView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -21,6 +22,8 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import static com.entersnowman.kursach.R.id.list_of_signals;
 
 public class MainActivity extends AppCompatActivity {
     Scheme scheme;
@@ -79,22 +82,25 @@ public class MainActivity extends AppCompatActivity {
         });
         scheme = (Scheme) findViewById(R.id.scheme);
         scheme.setActivity(this);
-        Element e = new Element(this,"AND",2);
+        /*Element e = new Element(this,"AND",2);
         Element e1 = new Element(this,"OR",2);
-        Element e2 = new Element(this,"AND",2);
-        /*Element e = new Element(this,"NAND",2);
+        Element e2 = new Element(this,"AND",2);*/
+        Element e = new Element(this,"NAND",1);
         Element e1 = new Element(this,"OR",2);
         e1.inputPins.get(0).setTerm("a");
         e1.inputPins.get(1).setTerm("b");
         Element e2 = new Element(this,"AND",2);
         e2.inputPins.get(0).setTerm("c");
         e2.inputPins.get(1).setTerm("d");
-        scheme.addElement(e);
-        scheme.addElement(e1);
-        scheme.addElement(e2);*/
+        Element e3 = new Element(this,"AND",2);
+        scheme.signals.add("a");
+        scheme.signals.add("b");
+        scheme.signals.add("c");
+        scheme.signals.add("d");
         scheme.addElement(e);
         scheme.addElement(e1);
         scheme.addElement(e2);
+        scheme.addElement(e3);
         scheme.setName_et(nameSignal);
         scheme.invalidate();
     }
@@ -133,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         if (id==SIGNAL_DIALOG){
             dialog_view = (LinearLayout) getLayoutInflater()
                     .inflate(R.layout.choose_signal_dialog, null);
-            final RadioGroup radioGroup = (RadioGroup) dialog_view.findViewById(R.id.list_of_signals);
+            final RadioGroup radioGroup = (RadioGroup) dialog_view.findViewById(list_of_signals);
             for (String s: scheme.signals){
                 RadioButton radioButton = new RadioButton(this);
                 radioButton.setText(s);
@@ -144,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
             adb.setPositiveButton("Синтезировать", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    scheme.synthesis_test((String) ((RadioButton)radioGroup.findViewById(radioGroup.getCheckedRadioButtonId())).getText());
+                    scheme.synthesis_test();
                 }
             }).setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
                 @Override
@@ -161,15 +167,12 @@ public class MainActivity extends AppCompatActivity {
             adb.setView(dialog_view);
             adb.setTitle("Cинтезированый тест");
             TextView enf = (TextView) dialog_view.findViewById(R.id.enf);
-            TextView label0 = (TextView) dialog_view.findViewById(R.id.labelForZero);
-            TextView res0 = (TextView) dialog_view.findViewById(R.id.resultZero);
-            TextView label1 = (TextView) dialog_view.findViewById(R.id.labelForOne);
-            TextView res1 = (TextView) dialog_view.findViewById(R.id.resultOne);
-            enf.setText(scheme.result_test.get(0));
-            label0.setText("Неисправность "+scheme.result_test.get(1)+" = 0");
-            res0.setText(scheme.result_test.get(2));
-            label1.setText("Неисправность "+scheme.result_test.get(1)+" = 1");
-            res1.setText(scheme.result_test.get(3));
+            TextView result = (TextView) dialog_view.findViewById(R.id.result_test);
+            StringBuilder res = new StringBuilder();
+            for (String s: scheme.result_test)
+                res.append(s+"\n");
+            result.setText(res.toString());
+
         }
 
 
@@ -179,8 +182,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPrepareDialog(int id, Dialog dialog) {
         super.onPrepareDialog(id, dialog);
-        if (id==DIALOG){
-
+        if (id==SIGNAL_DIALOG){
+            RadioGroup radioGroup  = (RadioGroup) ((AlertDialog)dialog).findViewById(R.id.list_of_signals);
+            radioGroup.removeAllViews();
+            for (String s: scheme.signals){
+                RadioButton radioButton = new RadioButton(this);
+                radioButton.setText(s);
+                radioGroup.addView(radioButton);
+            }
         }
     }
 
@@ -212,7 +221,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (id== R.id.synthesis){
-            showDialog(SIGNAL_DIALOG);
+            scheme.synthesis_test();
+            //showDialog(SIGNAL_DIALOG);
             return true;
         }
 
