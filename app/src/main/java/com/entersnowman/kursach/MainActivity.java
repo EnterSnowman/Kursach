@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         /*Element e = new Element(this,"AND",2);
         Element e1 = new Element(this,"OR",2);
         Element e2 = new Element(this,"AND",2);*/
-        Element e = new Element(this,"NAND",1);
+        /*Element e = new Element(this,"NAND",1);
         Element e1 = new Element(this,"OR",2);
         e1.inputPins.get(0).setTerm("a");
         e1.inputPins.get(1).setTerm("b");
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         scheme.addElement(e);
         scheme.addElement(e1);
         scheme.addElement(e2);
-        scheme.addElement(e3);
+        scheme.addElement(e3);*/
         scheme.setName_et(nameSignal);
         scheme.invalidate();
     }
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     String type = ((Spinner) dialog_view.findViewById(R.id.typeOfElement)).getSelectedItem().toString();
                     int n = Integer.valueOf(((Spinner) dialog_view.findViewById(R.id.numberOfIns)).getSelectedItem().toString());
-                    scheme.addElement(new Element(MainActivity.this, type, n));
+                    scheme.addElement(new Element(MainActivity.this, type, n,scheme));
                 }
             }).setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
                 @Override

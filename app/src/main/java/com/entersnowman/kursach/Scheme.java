@@ -218,8 +218,11 @@ public class Scheme extends View{
     public void nameOutputSignals(){
         int n = 0;
         int currentLetter = 0;
+        ArrayList<Integer> notCheckedElements = new ArrayList<Integer>();
+        ArrayList<Integer> readyToCheckElements = new ArrayList<Integer>();
         for (Element e : elements) {
             boolean flag = false;
+            e.passingSignals.add(n);
             e.setNumber(Integer.toString(n));
             n++;
             for (int i = currentLetter; i < alphabet.size() && !flag; i++) {
@@ -234,6 +237,12 @@ public class Scheme extends View{
                 }
             }
         }
+        //delete back links
+        for (Element e: elements){
+            e.passingSignals.add(Integer.valueOf(e.getNumber()));
+            e.removeBackLinks();
+        }
+
         invalidate();
     }
 

@@ -31,9 +31,20 @@ public class Element extends View {
     String type;
     boolean isMove;
     ArrayList<InputPin> inputPins;
+    ArrayList<Integer> passingSignals;
     OutputPin outputPin;
     LogicElement logicElement;
     String number;
+
+    public Scheme getScheme() {
+        return scheme;
+    }
+
+    public void setScheme(Scheme scheme) {
+        this.scheme = scheme;
+    }
+
+    Scheme scheme;
     public LogicElement getLogicElement() {
         return logicElement;
     }
@@ -42,10 +53,11 @@ public class Element extends View {
         this.logicElement = logicElement;
     }
 
-    public Element(Context context, String t, int number) {
+    public Element(Context context, String t, int number,Scheme scheme) {
         super(context);
         type = t;
         numberOfIns = number;
+        this.scheme = scheme;
         init();
     }
 
@@ -53,6 +65,15 @@ public class Element extends View {
         super(context, attrs);
         init();
     }
+
+    public ArrayList<Integer> getPassingSignals() {
+        return passingSignals;
+    }
+
+    public void setPassingSignals(ArrayList<Integer> passingSignals) {
+        this.passingSignals = passingSignals;
+    }
+
     public void init(){
         paint = new Paint();
         paint.setStrokeWidth(4);
@@ -80,6 +101,8 @@ public class Element extends View {
         outputPin = new OutputPin(getContext(),y+h/2,x+w,x+w+LENGTH_IN);
         outputPin.setElement(this);
         isMove = false;
+        passingSignals=  new ArrayList<Integer>();
+
     }
 
     @Override
@@ -133,7 +156,7 @@ public class Element extends View {
     public void setNewXY(float evX, float evY){
         x = evX;
         y = evY;
-        for (int i = 0; i < numberOfIns;i++){
+        for (int i = 0; i < inputPins.size();i++){
             inputPins.get(i).y = evY+SMALL_H*(i+1);
             inputPins.get(i).x2 = evX;
             inputPins.get(i).x1 = evX-LENGTH_IN;
@@ -164,6 +187,23 @@ public class Element extends View {
     public void createLogicElement(String middleSignal){
         logicElement = getLogic(null, middleSignal);
 
+    }
+
+    public void removeBackLinks(){
+
+        if (outputPin.getLinks().size()>0){
+            for (int i = 0;i<outputPin.getLinks().size();i++){
+                if (!passingSignals.contains(Integer.valueOf(outputPin.getLinks().get(i).inputPin.getElement().getNumber()))){
+                    outputPin.getLinks().get(i).inputPin.getElement().passingSignals.addAll(passingSignals);
+                    outputPin.getLinks().get(i).inputPin.getElement().removeBackLinks();
+                }
+                else {
+                    outputPin.getLinks().get(i).inputPin.getElement().inputPins.remove(outputPin.getLinks().get(i).inputPin);
+                    scheme.links.remove(outputPin.getLinks().remove(i));
+                    i--;
+                }
+            }
+        }
     }
 
 
